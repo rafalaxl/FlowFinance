@@ -1,0 +1,47 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+
+# Production build
+dist/
+dist-ssr/
+
+# Environment Variables (Senhas, API Keys, etc.)
+.env
+.env.*
+!.env.example
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Vite cache
+node_modules/.vite
+
+# ------------------------------------------------------------------------------
+# Governança da IA, Documentação Interna e Relatórios
+# ------------------------------------------------------------------------------
+agentes/
+GEMINI.md
+DESIGN.md
+BUILD_LOG.md
+QA_AUDIT_REPORT.md
+DEPLOY_INSTRUCTIONS.md

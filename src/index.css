@@ -1,0 +1,126 @@
+/* ══════════════════════════════════════════════════════
+   FlowFinance — index.css
+   Imports de fontes + CSS Reset + Tokens Primitivos
+   ══════════════════════════════════════════════════════ */
+
+/* ── Google Fonts ── */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+/* ── Component Tokens (must precede @tailwind directives) ── */
+@import "./styles/tokens.css";
+
+/* ── Tailwind Directives ── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Tokens Primitivos Globais ── */
+:root {
+  /* BRAND */
+  --brand-50:  #ECFDF5;
+  --brand-100: #D1FAE5;
+  --brand-500: #059669;
+  --brand-600: #047857;
+
+  /* GRAY — Pure Slate Scale */
+  --gray-50:  #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-300: #CBD5E1;
+  --gray-400: #94A3B8;
+  --gray-500: #64748B;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1E293B;
+  --gray-900: #0F172A;
+  --gray-950: #030712;
+
+  /* FEEDBACK */
+  --green-500:  #10B981;
+  --red-500:    #EF4444;
+  --amber-500:  #F59E0B;
+  --blue-info:  #3B82F6;
+
+  /* RADII */
+  --radius-none: 0;
+  --radius-sm:   0.25rem;
+  --radius-md:   0.375rem;
+  --radius-lg:   0.5rem;
+  --radius-xl:   0.75rem;
+
+  /* TYPOGRAPHY */
+  --font-sans:   "Geist", system-ui, sans-serif;
+  --font-mono:   "JetBrains Mono", monospace;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semi:   600;
+}
+
+/* ── Tokens Semânticos — Light Mode ── */
+:root {
+  --color-bg-primary:    #FFFFFF;
+  --color-bg-secondary:  var(--gray-50);
+  --color-bg-tertiary:   var(--gray-100);
+  --color-bg-elevated:   #FFFFFF;
+
+  --color-text-primary:   var(--gray-900);
+  --color-text-secondary: var(--gray-600);
+  --color-text-muted:     var(--gray-400);
+  --color-text-inverse:   #FFFFFF;
+
+  --color-accent:         var(--brand-500);
+  --color-accent-hover:   var(--brand-600);
+  --color-accent-subtle:  var(--brand-50);
+
+  --color-border:         var(--gray-200);
+  --color-border-subtle:  var(--gray-100);
+
+  --color-success:        var(--green-500);
+  --color-warning:        var(--amber-500);
+  --color-danger:         var(--red-500);
+  --color-info:           var(--blue-info);
+}
+
+/* ── Tokens Semânticos — Dark Mode ── */
+.dark {
+  --color-bg-primary:    var(--gray-950);
+  --color-bg-secondary:  var(--gray-900);
+  --color-bg-tertiary:   var(--gray-800);
+  --color-bg-elevated:   var(--gray-800);
+
+  --color-text-primary:   rgba(255, 255, 255, 0.95);
+  --color-text-secondary: var(--gray-400);
+  --color-text-muted:     var(--gray-500);
+  --color-text-inverse:   var(--gray-950);
+
+  --color-accent:         #10B981;
+  --color-accent-hover:   #34D399;
+  --color-accent-subtle:  rgba(16, 185, 129, 0.1);
+
+  --color-border:         #27272A;
+  --color-border-subtle:  #1F1F22;
+
+  --color-success:        #34D399;
+  --color-warning:        #FBBF24;
+  --color-danger:         #F87171;
+  --color-info:           #60A5FA;
+}
+
+/* ── Base Reset ── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+  }
+}
+

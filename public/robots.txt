@@ -1,0 +1,24 @@
+# FlowFinance SaaS — robots.txt
+# https://app.flowfinance.com.br/robots.txt
+
+# ─── Regras gerais para todos os crawlers ───────────────────────────────────
+User-agent: *
+
+# Rotas públicas: permitidas para indexação
+Allow: /$
+Allow: /login
+
+# Rotas privadas (autenticadas): BLOQUEADAS para indexação
+Disallow: /dashboard
+Disallow: /transactions
+Disallow: /settings
+Disallow: /api/
+
+# Assets de build (não têm valor semântico para SEO)
+Disallow: /assets/
+
+# ─── Sitemap ────────────────────────────────────────────────────────────────
+Sitemap: https://app.flowfinance.com.br/sitemap.xml
+
+# ─── Crawl-delay (cortesia para bots menos sofisticados) ────────────────────
+Crawl-delay: 10
