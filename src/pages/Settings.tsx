@@ -3,7 +3,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useAuth } from '@/hooks/useAuth'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { ProfileSection } from '@/features/settings/ProfileSection'
 import { TenantSection } from '@/features/settings/TenantSection'
 import { AppearanceSection } from '@/features/settings/AppearanceSection'
