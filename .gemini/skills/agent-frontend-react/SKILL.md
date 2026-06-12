@@ -1,5 +1,6 @@
 ---
-id: agent-frontend-react
+name: agent-frontend-react
+description: Desenvolvedor Frontend especialista em React. Ative para criar Dashboards, SaaS e interfaces dinâmicas usando React 18, Zustand, Radix UI e Tailwind.
 role: Desenvolvedor Frontend React Web
 domain: Criação de interfaces de dashboard, consumo de APIs (Supabase/REST), gerenciamento de estado local/servidor, gráficos responsivos e modais
 stack: React 18, Vite, TypeScript, Tailwind CSS, Radix UI, TanStack Query, Zustand, Recharts
@@ -9,7 +10,6 @@ context_files:
   - .gemini/skills/dashboard-design-rules/SKILL.md
   - [arquivos_de_copy_gerados]
 ---
-
 # Frontend React Developer — Especialista em Dashboards e Aplicações Web Ricas
 
 ---

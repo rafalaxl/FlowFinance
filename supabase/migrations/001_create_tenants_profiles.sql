@@ -62,21 +62,35 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
     v_tenant_id uuid;
+    v_role user_role;
 BEGIN
     -- Lê tenant_id dos metadados do signup (raw_user_meta_data)
     v_tenant_id := (NEW.raw_user_meta_data->>'tenant_id')::uuid;
+    v_role := COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'viewer');
 
-    -- Só insere se tenant_id foi fornecido no signup
-    IF v_tenant_id IS NOT NULL THEN
-        INSERT INTO public.profiles (id, tenant_id, email, full_name, role)
+    -- Se nenhum tenant foi provido, auto-cria um tenant para o usuário (novo registro)
+    IF v_tenant_id IS NULL THEN
+        INSERT INTO public.tenants (name, slug, plan)
         VALUES (
-            NEW.id,
-            v_tenant_id,
-            NEW.email,
-            COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-            COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'viewer')
-        );
+            COALESCE(NEW.raw_user_meta_data->>'full_name', 'Meu Negócio') || ' - Tenant',
+            'tenant-' || NEW.id,
+            'free'
+        )
+        RETURNING id INTO v_tenant_id;
+        
+        -- O criador do próprio tenant ganha role owner
+        v_role := 'owner';
     END IF;
+
+    -- Insere o profile garantindo que nunca fique sem tenant
+    INSERT INTO public.profiles (id, tenant_id, email, full_name, role)
+    VALUES (
+        NEW.id,
+        v_tenant_id,
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+        v_role
+    );
 
     RETURN NEW;
 END;

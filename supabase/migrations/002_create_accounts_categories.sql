@@ -60,10 +60,34 @@ CREATE TRIGGER trg_categories_updated_at
     BEFORE UPDATE ON public.categories
     FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
--- ── HELPER: retorna tenant_id do usuário autenticado ───────
+-- ── HELPERS: getters robustos de sessão (evita falha silenciosa em RLS) ─
+CREATE OR REPLACE FUNCTION public.auth_user_id()
+RETURNS uuid LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
+DECLARE
+    v_user_id uuid;
+BEGIN
+    v_user_id := auth.uid();
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'Acesso negado: auth.uid() não encontrado (usuário não autenticado).';
+    END IF;
+    RETURN v_user_id;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.auth_tenant_id()
-RETURNS uuid LANGUAGE sql STABLE SECURITY DEFINER AS $$
-    SELECT tenant_id FROM public.profiles WHERE id = auth.uid() LIMIT 1;
+RETURNS uuid LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
+DECLARE
+    v_tenant_id uuid;
+BEGIN
+    -- Utiliza a auth_user_id() recém-criada para também validar auth.uid()
+    SELECT tenant_id INTO v_tenant_id FROM public.profiles WHERE id = public.auth_user_id() LIMIT 1;
+    
+    IF v_tenant_id IS NULL THEN
+        RAISE EXCEPTION 'Acesso negado: tenant_id não encontrado para o usuário em public.profiles.';
+    END IF;
+    
+    RETURN v_tenant_id;
+END;
 $$;
 
 -- ── RLS: accounts ──────────────────────────────────────────

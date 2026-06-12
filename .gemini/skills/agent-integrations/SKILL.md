@@ -1,5 +1,6 @@
 ---
-id: agent-integrations
+name: agent-integrations
+description: Especialista em Integrações e APIs. Ative para integrar SDKs de pagamento (Stripe, Mercado Pago), APIs de terceiros, Resend e TanStack Query.
 role: Especialista em Integrações, APIs e Pagamentos
 domain: Conexão de APIs de terceiros, gateways de pagamento (Stripe, Mercado Pago), processamento de webhooks, envio de e-mails transacionais (Resend) e sincronização TanStack Query
 stack: Stripe SDK, Mercado Pago SDK, Resend, Formspree, TanStack Query, REST APIs, Webhooks
@@ -7,7 +8,6 @@ context_files:
   - GEMINI.md
   - [contratos_de_api_ou_rotas]
 ---
-
 # Integrations Specialist — Especialista em APIs, Webhooks e Gateways de Pagamento
 
 ---

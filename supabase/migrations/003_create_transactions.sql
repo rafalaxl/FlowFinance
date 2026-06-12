@@ -14,10 +14,10 @@ CREATE TYPE transaction_status AS ENUM (
 -- ── TABELA: transactions ───────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.transactions (
     id               uuid               PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id        uuid               NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    tenant_id        uuid               NOT NULL DEFAULT public.auth_tenant_id() REFERENCES public.tenants(id) ON DELETE CASCADE,
     account_id       uuid               NOT NULL REFERENCES public.accounts(id) ON DELETE RESTRICT,
     category_id      uuid               REFERENCES public.categories(id) ON DELETE SET NULL,
-    user_id          uuid               NOT NULL REFERENCES auth.users(id) ON DELETE RESTRICT,
+    user_id          uuid               NOT NULL DEFAULT auth_user_id() REFERENCES auth.users(id) ON DELETE RESTRICT,
     amount           numeric(15,2)      NOT NULL CHECK (amount > 0),
     description      text               NOT NULL,
     type             flow_type          NOT NULL,
@@ -105,15 +105,11 @@ ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "transactions_select_tenant" ON public.transactions
     FOR SELECT USING (tenant_id = public.auth_tenant_id());
 
--- INSERT: analyst e acima criam transações no próprio tenant
-CREATE POLICY "transactions_insert_analyst" ON public.transactions
+-- INSERT: usuário logado cria transações atreladas ao seu uid no próprio tenant
+CREATE POLICY "transactions_insert_policy" ON public.transactions
     FOR INSERT WITH CHECK (
         tenant_id = public.auth_tenant_id()
-        AND user_id = auth.uid()
-        AND EXISTS (
-            SELECT 1 FROM public.profiles
-            WHERE id = auth.uid() AND role IN ('owner', 'admin', 'analyst')
-        )
+        AND user_id = auth_user_id()
     );
 
 -- UPDATE: criador pode editar; admin/owner podem editar qualquer uma do tenant
@@ -121,21 +117,24 @@ CREATE POLICY "transactions_update_own_or_admin" ON public.transactions
     FOR UPDATE USING (
         tenant_id = public.auth_tenant_id()
         AND (
-            user_id = auth.uid()
+            user_id = auth_user_id()
             OR EXISTS (
                 SELECT 1 FROM public.profiles
-                WHERE id = auth.uid() AND role IN ('owner', 'admin')
+                WHERE id = auth_user_id() AND role IN ('owner', 'admin')
             )
         )
     );
 
--- DELETE: apenas admin/owner podem cancelar/excluir transações
-CREATE POLICY "transactions_delete_admin" ON public.transactions
+-- DELETE: criador ou admin/owner podem excluir transações do tenant
+CREATE POLICY "transactions_delete_own_or_admin" ON public.transactions
     FOR DELETE USING (
         tenant_id = public.auth_tenant_id()
-        AND EXISTS (
-            SELECT 1 FROM public.profiles
-            WHERE id = auth.uid() AND role IN ('owner', 'admin')
+        AND (
+            user_id = auth_user_id()
+            OR EXISTS (
+                SELECT 1 FROM public.profiles
+                WHERE id = auth_user_id() AND role IN ('owner', 'admin')
+            )
         )
     );
 
