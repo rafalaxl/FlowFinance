@@ -4,6 +4,7 @@ import type { Transaction } from '@/types/database.types'
 import { Badge, statusBadge, statusLabel } from './Badge'
 import { Skeleton } from './SkeletonCard'
 import { formatCurrency, formatDate } from '@/lib/formatters'
+import { useUpdateTransaction } from '@/hooks/useTransactions'
 
 interface TransactionTableProps {
   transactions: Transaction[]
@@ -42,6 +43,8 @@ function EmptyState() {
 }
 
 export function TransactionTable({ transactions, loading, error, compact }: TransactionTableProps) {
+  const { mutate: updateTx } = useUpdateTransaction()
+
   if (loading) return <TableSkeleton />
 
   if (error) {
@@ -65,6 +68,7 @@ export function TransactionTable({ transactions, loading, error, compact }: Tran
             <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)] sm:table-cell">Data</th>
             <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">Valor</th>
             <th className="hidden px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)] md:table-cell">Status</th>
+            <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">Ações</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--color-border)]">
@@ -99,6 +103,16 @@ export function TransactionTable({ transactions, loading, error, compact }: Tran
                 <Badge variant={statusBadge(tx.status)}>
                   {statusLabel[tx.status]}
                 </Badge>
+              </td>
+              <td className="px-4 py-3 text-right">
+                {tx.status === 'pending' && (
+                  <button
+                    onClick={() => updateTx({ id: tx.id, status: 'completed' })}
+                    className="text-xs font-medium text-[var(--color-success)] hover:underline"
+                  >
+                    Concluir
+                  </button>
+                )}
               </td>
             </tr>
           ))}

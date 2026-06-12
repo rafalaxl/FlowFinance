@@ -10,6 +10,8 @@ import type {
   AccountBalanceRow,
   AccountInsert,
 } from '../types/database.types'
+import { useUIStore } from '../store/uiStore'
+import { DEMO_ACCOUNTS } from '../services/demoData'
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
 
@@ -65,10 +67,19 @@ async function updateAccountBalance(id: string, balance: number): Promise<Accoun
 
 /** Lista todas as contas do tenant (RLS aplicado automaticamente). */
 export function useAccounts() {
-  return useQuery({
+  const isDemoMode = useUIStore((s) => s.isDemoMode)
+
+  const query = useQuery({
     queryKey: ACCOUNT_KEYS.list(),
     queryFn: fetchAccounts,
+    enabled: !isDemoMode,
   })
+
+  if (isDemoMode) {
+    return { data: DEMO_ACCOUNTS, isLoading: false, isError: false } as typeof query
+  }
+
+  return query
 }
 
 /** Saldos consolidados por conta via `v_account_balances`. */

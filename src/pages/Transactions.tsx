@@ -5,6 +5,7 @@ import { useTransactions, useDeleteTransaction, type TransactionFilters } from '
 import { useUIStore } from '@/store/uiStore'
 import { TransactionTable } from '@/components/ui/TransactionTable'
 import { FiltersBar } from '@/components/ui/FiltersBar'
+import { TransactionModal } from '@/components/ui/TransactionModal'
 
 const PAGE_SIZE = 20
 
@@ -80,6 +81,7 @@ export default function Transactions() {
       </div>
       {/* deleteTransaction exposed for future use via modal */}
       <span className="hidden" data-delete-fn={String(!!deleteTransaction)} />
+      <TransactionModal />
     </div>
   )
 }

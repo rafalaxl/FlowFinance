@@ -8,15 +8,19 @@ import { ptBR } from 'date-fns/locale'
  */
 export function formatCurrency(value: number, compact = false): string {
   if (compact) {
-    if (Math.abs(value) >= 1_000_000)
-      return `R$ ${(value / 1_000_000).toFixed(1)}M`
-    if (Math.abs(value) >= 1_000)
-      return `R$ ${(value / 1_000).toFixed(1)}K`
+    const absValue = Math.abs(value)
+    if (absValue >= 1_000_000_000)
+      return `R$ ${(value / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}B`
+    if (absValue >= 1_000_000)
+      return `R$ ${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+    if (absValue >= 1_000)
+      return `R$ ${(value / 1_000).toFixed(1).replace(/\.0$/, '')}K`
   }
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value)
 }
 

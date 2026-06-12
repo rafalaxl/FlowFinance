@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/layouts/DashboardLayout'
 import Dashboard from '@/pages/Dashboard'
 import Transactions from '@/pages/Transactions'
 import Login from '@/pages/Login'
+import Settings from '@/pages/Settings'
 
 function ProtectedRoutes() {
   return (
@@ -15,6 +16,7 @@ function ProtectedRoutes() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard"    element={<Dashboard />} />
           <Route path="transactions" element={<Transactions />} />
+          <Route path="settings"     element={<Settings />} />
           <Route path="*"            element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </DashboardLayout>

@@ -16,6 +16,8 @@ interface UIStore {
   toggleSidebar: () => void
   theme: Theme
   setTheme: (theme: Theme) => void
+  isDemoMode: boolean
+  setDemoMode: (value: boolean) => void
   modals: ModalState
   openNewTransaction: () => void
   openEditTransaction: (id: string) => void
@@ -39,7 +41,7 @@ function applyTheme(theme: Theme): void {
   }
 }
 
-type PersistedSlice = Pick<UIStore, 'theme' | 'sidebarOpen'>
+type PersistedSlice = Pick<UIStore, 'theme' | 'sidebarOpen' | 'isDemoMode'>
 
 export const useUIStore = create<UIStore>()(
   persist<UIStore, [], [], PersistedSlice>(
@@ -54,6 +56,12 @@ export const useUIStore = create<UIStore>()(
         set({ theme })
       },
 
+      isDemoMode: JSON.parse(localStorage.getItem('ff-demo-mode') ?? 'false') as boolean,
+      setDemoMode: (value: boolean) => {
+        localStorage.setItem('ff-demo-mode', JSON.stringify(value))
+        set({ isDemoMode: value })
+      },
+
       modals: DEFAULT_MODALS,
       openNewTransaction: () =>
         set({ modals: { ...DEFAULT_MODALS, newTransaction: true } }),
@@ -65,7 +73,7 @@ export const useUIStore = create<UIStore>()(
     }),
     {
       name: 'ff-ui-store',
-      partialize: (s): PersistedSlice => ({ theme: s.theme, sidebarOpen: s.sidebarOpen }),
+      partialize: (s): PersistedSlice => ({ theme: s.theme, sidebarOpen: s.sidebarOpen, isDemoMode: s.isDemoMode }),
       storage: {
         getItem: (name) => {
           const str = localStorage.getItem(name)

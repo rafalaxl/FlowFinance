@@ -7,6 +7,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import type { Session, User, AuthError } from '@supabase/supabase-js'
 import { supabase } from '../services/supabaseClient'
+import { useUIStore } from '../store/uiStore'
+import { DEMO_USER } from '../services/demoData'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -30,14 +32,18 @@ interface AuthState {
 }
 
 interface UseAuthReturn extends AuthState {
-  signIn:  (payload: SignInPayload) => Promise<void>
-  signUp:  (payload: SignUpPayload) => Promise<void>
-  signOut: () => Promise<void>
+  signIn:     (payload: SignInPayload) => Promise<void>
+  signUp:     (payload: SignUpPayload) => Promise<void>
+  signOut:    () => Promise<void>
+  signInDemo: () => void
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useAuth(): UseAuthReturn {
+  const isDemoMode = useUIStore((s) => s.isDemoMode)
+  const setDemoMode = useUIStore((s) => s.setDemoMode)
+
   const [state, setState] = useState<AuthState>({
     session: null,
     user: null,
@@ -47,6 +53,11 @@ export function useAuth(): UseAuthReturn {
 
   // Hydrate session on mount & subscribe to auth changes
   useEffect(() => {
+    if (isDemoMode) {
+      setState({ session: null, user: DEMO_USER as unknown as User, isLoading: false, error: null })
+      return
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setState(prev => ({ ...prev, session, user: session?.user ?? null, isLoading: false }))
     })
@@ -56,7 +67,7 @@ export function useAuth(): UseAuthReturn {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [isDemoMode])
 
   const signIn = useCallback(async ({ email, password }: SignInPayload) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
@@ -77,11 +88,17 @@ export function useAuth(): UseAuthReturn {
   }, [])
 
   const signOut = useCallback(async () => {
+    setDemoMode(false)
     setState(prev => ({ ...prev, isLoading: true, error: null }))
     const { error } = await supabase.auth.signOut()
-    setState(prev => ({ ...prev, isLoading: false, error: error ?? null }))
+    setState(prev => ({ ...prev, session: null, user: null, isLoading: false, error: error ?? null }))
     if (error) throw error
-  }, [])
+  }, [setDemoMode])
 
-  return { ...state, signIn, signUp, signOut }
+  const signInDemo = useCallback(() => {
+    setDemoMode(true)
+    setState({ session: null, user: DEMO_USER as unknown as User, isLoading: false, error: null })
+  }, [setDemoMode])
+
+  return { ...state, signIn, signUp, signOut, signInDemo }
 }

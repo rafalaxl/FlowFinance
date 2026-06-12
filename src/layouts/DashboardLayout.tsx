@@ -34,13 +34,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--color-bg-primary)]">
+      {/* Backdrop for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-20 bg-black/50 lg:hidden" 
+          onClick={toggleSidebar} 
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={[
           'flex flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-secondary)] transition-all duration-200',
-          sidebarOpen ? 'w-56' : 'w-16',
+          sidebarOpen ? 'w-56 translate-x-0' : '-translate-x-full w-56 lg:w-16 lg:translate-x-0',
           'fixed inset-y-0 left-0 z-30 lg:relative lg:z-auto',
-          !sidebarOpen && 'translate-x-0',
         ].join(' ')}
         aria-label="Navegação principal"
       >

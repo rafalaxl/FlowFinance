@@ -3,6 +3,7 @@
 import { type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { useUIStore } from '@/store/uiStore'
 
 interface AuthGuardProps {
   children: ReactNode
@@ -10,6 +11,7 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children }: AuthGuardProps) {
   const { session, isLoading } = useAuth()
+  const isDemoMode = useUIStore((s) => s.isDemoMode)
   const location = useLocation()
 
   if (isLoading) {
@@ -23,9 +25,10 @@ export function AuthGuard({ children }: AuthGuardProps) {
     )
   }
 
-  if (!session) {
+  if (!session && !isDemoMode) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   return <>{children}</>
 }
+

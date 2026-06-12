@@ -13,7 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const { signIn, isLoading } = useAuth()
+  const { signIn, signInDemo, isLoading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as LocationState)?.from?.pathname ?? '/dashboard'
@@ -27,6 +27,11 @@ export default function Login() {
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Erro ao autenticar')
     }
+  }
+
+  function handleDemo() {
+    signInDemo()
+    navigate('/dashboard', { replace: true })
   }
 
   const inputClass = [
@@ -93,7 +98,28 @@ export default function Login() {
             {isLoading ? 'Autenticando…' : 'Acessar Dashboard'}
           </button>
         </form>
+
+        {/* ── Separator ── */}
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-[var(--color-border)]" />
+          <span className="text-xs text-[var(--color-text-muted)]">ou</span>
+          <div className="h-px flex-1 bg-[var(--color-border)]" />
+        </div>
+
+        {/* ── Demo Mode ── */}
+        <button
+          type="button"
+          onClick={handleDemo}
+          id="demo-login-btn"
+          className="w-full rounded-md border border-[var(--color-accent)] bg-transparent px-4 py-2.5 text-sm font-medium text-[var(--color-accent)] transition-colors hover:bg-[var(--color-accent)]/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
+        >
+          Acessar Demonstração
+        </button>
+        <p className="mt-2 text-center text-xs text-[var(--color-text-muted)]">
+          Explore o dashboard com dados simulados
+        </p>
       </div>
     </div>
   )
 }
+

@@ -1,7 +1,7 @@
 // ─── FlowFinance — CashFlowChart ─────────────────────────────────────────────
-// Recharts LineChart responsivo com tooltip e grid da marca
+// Recharts AreaChart responsivo com tooltip e grid da marca
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, type TooltipProps,
 } from 'recharts'
 import { Skeleton } from './SkeletonCard'
@@ -61,15 +61,25 @@ export function CashFlowChart({ data, loading, error }: CashFlowChartProps) {
         Fluxo de Caixa — Últimos 6 meses
       </h3>
       <ResponsiveContainer width="100%" height={240}>
-        <LineChart data={data} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-success)" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="var(--color-success)" stopOpacity={0}/>
+            </linearGradient>
+            <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-danger)" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="var(--color-danger)" stopOpacity={0}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" />
           <XAxis dataKey="period" tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} />
           <YAxis tickFormatter={(v: number) => formatCurrency(v, true)} tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} width={72} />
           <Tooltip content={<CustomTooltip />} />
-          <Line type="monotone" dataKey="income"  stroke="var(--color-success)" strokeWidth={2} dot={false} name="income"  />
-          <Line type="monotone" dataKey="expense" stroke="var(--color-danger)"  strokeWidth={2} dot={false} name="expense" />
-          <Line type="monotone" dataKey="balance" stroke="var(--color-accent)"  strokeWidth={2} dot={false} name="balance" strokeDasharray="5 3" />
-        </LineChart>
+          <Area type="monotone" dataKey="income" stroke="var(--color-success)" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={2} dot={false} name="income" />
+          <Area type="monotone" dataKey="expense" stroke="var(--color-danger)" fillOpacity={1} fill="url(#colorExpense)" strokeWidth={2} dot={false} name="expense" />
+          <Area type="monotone" dataKey="balance" stroke="var(--color-accent)" fill="none" strokeWidth={2} strokeDasharray="5 5" dot={false} name="balance" />
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   )

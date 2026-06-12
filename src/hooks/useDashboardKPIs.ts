@@ -9,6 +9,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../services/supabaseClient'
 import type { DashboardKPIs, Transaction, AccountBalanceRow } from '../types/database.types'
+import { useUIStore } from '../store/uiStore'
+import { DEMO_KPIS, DEMO_TRANSACTIONS } from '../services/demoData'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -97,15 +99,51 @@ async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 export const DASHBOARD_KEYS = {
-  kpis: () => ['dashboard', 'kpis'] as const,
+  kpis: (filters?: { from?: string; to?: string }) => ['dashboard', 'kpis', filters] as const,
 }
 
 /** Retorna os 4 KPIs financeiros do CFO/CEO em um único hook. */
-export function useDashboardKPIs() {
-  return useQuery<DashboardKPIs, Error>({
-    queryKey: DASHBOARD_KEYS.kpis(),
+export function useDashboardKPIs(filters: { from?: string; to?: string } = {}) {
+  const isDemoMode = useUIStore((s) => s.isDemoMode)
+
+  const query = useQuery<DashboardKPIs, Error>({
+    queryKey: DASHBOARD_KEYS.kpis(filters),
     queryFn: fetchDashboardKPIs,
     staleTime: 3 * 60 * 1_000,
     refetchInterval: 5 * 60 * 1_000,
+    enabled: !isDemoMode,
   })
+
+  if (isDemoMode) {
+    let filteredTx = DEMO_TRANSACTIONS
+    if (filters.from) filteredTx = filteredTx.filter(t => t.transaction_date >= filters.from!)
+    if (filters.to)   filteredTx = filteredTx.filter(t => t.transaction_date <= filters.to!)
+
+    let totalIncome = 0
+    let totalExpense = 0
+    const pendingPayables: typeof DEMO_TRANSACTIONS = []
+    const pendingReceivables: typeof DEMO_TRANSACTIONS = []
+
+    for (const tx of filteredTx) {
+      if (tx.status === 'completed') {
+        if (tx.type === 'income') totalIncome += tx.amount
+        if (tx.type === 'expense') totalExpense += tx.amount
+      } else if (tx.status === 'pending') {
+        if (tx.type === 'expense') pendingPayables.push(tx)
+        if (tx.type === 'income') pendingReceivables.push(tx)
+      }
+    }
+
+    const calculatedKPIs: DashboardKPIs = {
+      availableCash: DEMO_KPIS.availableCash,
+      monthlyBurnRate: totalExpense,
+      projectedEbitda: totalIncome - totalExpense,
+      pendingPayables,
+      pendingReceivables,
+    }
+
+    return { data: calculatedKPIs, isLoading: false, isError: false } as typeof query
+  }
+
+  return query
 }
