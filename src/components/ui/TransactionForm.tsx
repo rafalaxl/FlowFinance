@@ -3,6 +3,7 @@ import { useCreateTransaction } from '@/hooks/useTransactions'
 import { useAccounts } from '@/hooks/useAccounts'
 import { useAuth } from '@/hooks/useAuth'
 import { useUIStore } from '@/store/uiStore'
+import { supabase } from '@/services/supabaseClient'
 import type { TransactionType, TransactionStatus } from '@/types/database.types'
 
 export function TransactionForm() {
@@ -32,17 +33,16 @@ export function TransactionForm() {
         targetAccountId = 'c0000000-0000-0000-0000-000000000001'
       } else {
         // Tenta criar no Supabase real
-        const { supabase } = await import('@/services/supabaseClient')
-        const { data } = await supabase.from('accounts').insert({
+        const result: any = await supabase.from('accounts').insert({
           tenant_id: tenantId,
           name: 'Caixa Geral',
           type: 'checking',
           balance: 0,
           currency: 'BRL'
-        }).select().single()
+        } as any).select().single()
         
-        if (data) {
-          targetAccountId = data.id
+        if (result.data && result.data.id) {
+          targetAccountId = result.data.id
         } else {
           // Fallback se o banco bloquear (ex: erro de RLS por usuário criado manualmente)
           targetAccountId = 'c0000000-0000-0000-0000-000000000001'
@@ -53,7 +53,7 @@ export function TransactionForm() {
     mutate({
       tenant_id: tenantId,
       user_id: userId,
-      account_id: targetAccountId,
+      account_id: targetAccountId as string,
       category_id: null,
       amount: Number(amount),
       description,
