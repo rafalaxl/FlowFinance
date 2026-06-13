@@ -37,13 +37,15 @@ export function TransactionForm() {
         targetAccountId = 'c0000000-0000-0000-0000-000000000001'
       } else {
         // Tenta criar no Supabase real
-        const result: any = await supabase.from('accounts').insert({
-          tenant_id: tenantId,
+        const payload: any = {
           name: 'Caixa Geral',
           type: 'checking',
           balance: 0,
           currency: 'BRL'
-        } as any).select().single()
+        }
+        if (tenantId) payload.tenant_id = tenantId
+
+        const result: any = await supabase.from('accounts').insert(payload).select().single()
         
         if (result.error) {
           console.log('Erro Supabase:', result.error)
@@ -65,8 +67,7 @@ export function TransactionForm() {
       return
     }
 
-    mutate({
-      tenant_id: tenantId,
+    const transactionPayload: any = {
       user_id: userId,
       account_id: targetAccountId as string,
       category_id: null,
@@ -76,7 +77,10 @@ export function TransactionForm() {
       status,
       transaction_date: transactionDate,
       due_date: null
-    }, {
+    }
+    if (tenantId) transactionPayload.tenant_id = tenantId
+
+    mutate(transactionPayload, {
       onSuccess: () => {
         closeAllModals()
       },
