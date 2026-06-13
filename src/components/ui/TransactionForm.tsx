@@ -80,6 +80,8 @@ export function TransactionForm() {
     }
     if (tenantId) transactionPayload.tenant_id = tenantId
 
+    console.log('Payload da transação:', transactionPayload)
+
     mutate(transactionPayload, {
       onSuccess: () => {
         closeAllModals()
