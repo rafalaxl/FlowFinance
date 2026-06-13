@@ -1,4 +1,6 @@
 -- Migration 009: Fix v_account_balances view column names to match TypeScript types
+DROP VIEW IF EXISTS public.v_account_balances CASCADE;
+
 CREATE OR REPLACE VIEW public.v_account_balances AS
 SELECT
     a.tenant_id,
