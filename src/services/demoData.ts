@@ -5,20 +5,16 @@
 import type { Transaction, Account, Category, Profile } from '../types/database.types'
 import type { DashboardKPIs } from '../types/database.types'
 
+import { addDaysISO } from '../lib/dates'
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const TENANT = 'a0000000-0000-0000-0000-000000000001'
 const USER   = 'b0000000-0000-0000-0000-000000000001'
 const now = new Date().toISOString()
 
-function daysAgo(d: number): string {
-  const dt = new Date(); dt.setDate(dt.getDate() - d)
-  return dt.toISOString().split('T')[0] as string
-}
-function daysFromNow(d: number): string {
-  const dt = new Date(); dt.setDate(dt.getDate() + d)
-  return dt.toISOString().split('T')[0] as string
-}
+const daysAgo = (d: number) => addDaysISO(-d)
+const daysFromNow = (d: number) => addDaysISO(d)
 
 // ── Demo User ────────────────────────────────────────────────────────────────
 
@@ -122,4 +118,8 @@ export function updateDemoTransaction(id: string, payload: any) {
   if (i >= 0) {
     DEMO_TRANSACTIONS[i] = { ...DEMO_TRANSACTIONS[i], ...payload } as Transaction;
   }
+}
+
+export function deleteDemoTransaction(id: string) {
+  DEMO_TRANSACTIONS = DEMO_TRANSACTIONS.filter(t => t.id !== id)
 }

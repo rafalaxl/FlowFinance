@@ -19,7 +19,7 @@ export default function Dashboard() {
   const from = searchParams.get('de') || undefined
   const to = searchParams.get('ate') || undefined
 
-  const { data: kpis, isLoading: kpiLoading, isError: kpiError } = useDashboardKPIs({ from, to })
+  const { data: kpis, isLoading: kpiLoading, isError: kpiError } = useDashboardKPIs()
   const { data: txList = [], isLoading: txLoading, isError: txError } = useTransactions({ status: 'completed', from, to })
   const { cashFlowData, barData, donutData } = useChartData(txList)
 

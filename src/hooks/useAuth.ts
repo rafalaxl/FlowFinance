@@ -7,6 +7,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import type { Session, User, AuthError } from '@supabase/supabase-js'
 import { supabase } from '../services/supabaseClient'
+import { queryClient } from '../services/queryClient'
 import { useUIStore } from '../store/uiStore'
 import { DEMO_USER } from '../services/demoData'
 
@@ -16,7 +17,6 @@ interface SignUpPayload {
   email: string
   password: string
   fullName: string
-  tenantId: string    // passed to handle_new_user trigger
 }
 
 interface SignInPayload {
@@ -62,26 +62,35 @@ export function useAuth(): UseAuthReturn {
       setState(prev => ({ ...prev, session, user: session?.user ?? null, isLoading: false }))
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setState(prev => ({ ...prev, session, user: session?.user ?? null, isLoading: false }))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setState(prev => {
+        const prevUserId = prev.user?.id
+        const nextUserId = session?.user?.id
+        if (event === 'SIGNED_OUT' || (prevUserId && prevUserId !== nextUserId)) {
+          queryClient.clear()
+        }
+        return { ...prev, session, user: session?.user ?? null, isLoading: false }
+      })
     })
 
     return () => subscription.unsubscribe()
   }, [isDemoMode])
 
   const signIn = useCallback(async ({ email, password }: SignInPayload) => {
+    setDemoMode(false)
+    queryClient.clear()
     setState(prev => ({ ...prev, isLoading: true, error: null }))
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setState(prev => ({ ...prev, isLoading: false, error: error ?? null }))
     if (error) throw error
-  }, [])
+  }, [setDemoMode])
 
-  const signUp = useCallback(async ({ email, password, fullName, tenantId }: SignUpPayload) => {
+  const signUp = useCallback(async ({ email, password, fullName }: SignUpPayload) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName, tenant_id: tenantId } },
+      options: { data: { full_name: fullName } },
     })
     setState(prev => ({ ...prev, isLoading: false, error: error ?? null }))
     if (error) throw error
@@ -89,6 +98,7 @@ export function useAuth(): UseAuthReturn {
 
   const signOut = useCallback(async () => {
     setDemoMode(false)
+    queryClient.clear()
     setState(prev => ({ ...prev, isLoading: true, error: null }))
     const { error } = await supabase.auth.signOut()
     setState(prev => ({ ...prev, session: null, user: null, isLoading: false, error: error ?? null }))
@@ -96,6 +106,7 @@ export function useAuth(): UseAuthReturn {
   }, [setDemoMode])
 
   const signInDemo = useCallback(() => {
+    queryClient.clear()
     setDemoMode(true)
     setState({ session: null, user: DEMO_USER as unknown as User, isLoading: false, error: null })
   }, [setDemoMode])

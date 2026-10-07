@@ -79,11 +79,18 @@ export interface AccountBalanceRow {
 
 // ── Mutation Payloads ────────────────────────────────────────────────────────
 
-export type TransactionInsert = Omit<Transaction, 'id' | 'created_at' | 'updated_at'>
+export type TransactionInsert = Omit<Transaction, 'id' | 'created_at' | 'updated_at' | 'tenant_id' | 'user_id'> & {
+  tenant_id?: string
+  user_id?: string
+}
 export type TransactionUpdate = Partial<Omit<Transaction, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>>
 
-export type AccountInsert = Omit<Account, 'id' | 'created_at' | 'updated_at'>
-export type CategoryInsert = Omit<Category, 'id' | 'created_at' | 'updated_at'>
+export type AccountInsert = Omit<Account, 'id' | 'created_at' | 'updated_at' | 'tenant_id'> & {
+  tenant_id?: string
+}
+export type CategoryInsert = Omit<Category, 'id' | 'created_at' | 'updated_at' | 'tenant_id'> & {
+  tenant_id?: string
+}
 
 // ── KPI Shapes ───────────────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 // ─── FlowFinance — AuthGuard ──────────────────────────────────────────────────
 // Protege rotas privadas. Redireciona para /login se não autenticado.
-import { type ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useUIStore } from '@/store/uiStore'
@@ -12,7 +12,14 @@ interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps) {
   const { session, isLoading } = useAuth()
   const isDemoMode = useUIStore((s) => s.isDemoMode)
+  const setDemoMode = useUIStore((s) => s.setDemoMode)
   const location = useLocation()
+
+  useEffect(() => {
+    if (session && isDemoMode) {
+      setDemoMode(false)
+    }
+  }, [session, isDemoMode, setDemoMode])
 
   if (isLoading) {
     return (

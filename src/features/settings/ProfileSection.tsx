@@ -1,13 +1,29 @@
 // ─── FlowFinance — ProfileSection ─────────────────────────────────────────────
-// Read-only user profile card for Settings page.
+// Exibe os dados de perfil reais do usuário logado via useTenant com fallback.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { useTenant } from '@/hooks/useTenant'
+
 interface ProfileSectionProps {
-  email: string
-  fullName: string
+  email?: string
+  fullName?: string
 }
 
-export function ProfileSection({ email, fullName }: ProfileSectionProps) {
+const ROLE_LABELS: Record<string, string> = {
+  owner: 'Proprietário',
+  admin: 'Administrador',
+  analyst: 'Analista',
+  viewer: 'Visualizador',
+}
+
+export function ProfileSection({ email: fallbackEmail, fullName: fallbackName }: ProfileSectionProps) {
+  const { data, isLoading } = useTenant()
+
+  const displayName = data?.profile?.full_name || fallbackName || (isLoading ? 'Carregando…' : 'Usuário')
+  const displayEmail = data?.profile?.email || fallbackEmail || '—'
+  const rawRole = data?.profile?.role || 'admin'
+  const roleLabel = ROLE_LABELS[rawRole] || rawRole
+
   return (
     <section
       className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] p-5"
@@ -26,8 +42,8 @@ export function ProfileSection({ email, fullName }: ProfileSectionProps) {
           <span className="text-sm text-[var(--color-text-secondary)]">
             Nome
           </span>
-          <span className="text-sm text-[var(--color-text-primary)]">
-            {fullName}
+          <span className="text-sm text-[var(--color-text-primary)] font-medium">
+            {displayName}
           </span>
         </div>
 
@@ -37,7 +53,7 @@ export function ProfileSection({ email, fullName }: ProfileSectionProps) {
             E-mail
           </span>
           <span className="text-sm text-[var(--color-text-primary)]">
-            {email}
+            {displayEmail}
           </span>
         </div>
 
@@ -46,8 +62,8 @@ export function ProfileSection({ email, fullName }: ProfileSectionProps) {
           <span className="text-sm text-[var(--color-text-secondary)]">
             Função
           </span>
-          <span className="inline-flex items-center rounded-md bg-[var(--color-accent-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--color-accent)]">
-            Admin
+          <span className="inline-flex items-center rounded-md bg-[var(--color-accent-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--color-accent)] capitalize">
+            {roleLabel}
           </span>
         </div>
       </div>

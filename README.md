@@ -25,12 +25,18 @@ O Dashboard central oferece resposta imediata a métricas vitais para o negócio
 - Conta no [Supabase](https://supabase.com/) e projeto criado
 
 ### 2. Configurando o Banco de Dados (Supabase)
-Abra o SQL Editor no seu painel do Supabase e rode em ordem as `migrations` criadas em `supabase/migrations/`:
-- `001_create_tenants_profiles.sql` (Ativa os triggers e tabelas base)
-- `002_create_accounts_categories.sql`
-- `003_create_transactions.sql`
+Abra o SQL Editor no seu painel do Supabase e siga a ordem descrita detalhadamente em [`supabase/APPLY_ORDER.md`](supabase/APPLY_ORDER.md).
 
-Opcional: para popular com dados fictícios, rode o arquivo `004_seed_demo_data.sql`.
+As migrações cobrem desde o scaffold inicial até o hardening de segurança (RLS & views):
+- `001_create_tenants_profiles.sql` a `009_fix_account_balances_view.sql` (Estrutura base e correções)
+- `010_secure_account_balances_view.sql` (Isolamento com `security_invoker = true`)
+- `011_lock_profile_privileged_columns.sql` (Bloqueio de colunas privilegiadas e RPC de roles)
+- `012_harden_handle_new_user.sql` (Proteção contra injeção de metadata no signup)
+- `013_transactions_fk_tenant_check.sql` (Validação estrita de chaves de tenant em transações)
+- `014_definer_search_path.sql` (Blindagem de `search_path` em funções SECURITY DEFINER)
+
+Para validar a segurança das políticas e views, execute [`supabase/tests/verify_security.sql`](supabase/tests/verify_security.sql).
+Para dados fictícios em ambiente local de teste, utilize [`supabase/seed.dev.sql`](supabase/seed.dev.sql) (*nunca execute em produção*).
 
 ### 3. Setup do Frontend
 Na raiz do projeto, renomeie `.env.example` para `.env.local` e preencha as credenciais:

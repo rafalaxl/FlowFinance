@@ -56,11 +56,8 @@ export const useUIStore = create<UIStore>()(
         set({ theme })
       },
 
-      isDemoMode: JSON.parse(localStorage.getItem('ff-demo-mode') ?? 'false') as boolean,
-      setDemoMode: (value: boolean) => {
-        localStorage.setItem('ff-demo-mode', JSON.stringify(value))
-        set({ isDemoMode: value })
-      },
+      isDemoMode: false,
+      setDemoMode: (value: boolean) => set({ isDemoMode: value }),
 
       modals: DEFAULT_MODALS,
       openNewTransaction: () =>

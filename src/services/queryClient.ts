@@ -20,7 +20,7 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: true,
     },
     mutations: {
-      retry: 1,
+      retry: 0,
       retryDelay,
       onError: (error: unknown) => {
         // Global mutation error logger — replace with toast/sentry in prod

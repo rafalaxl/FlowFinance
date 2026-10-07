@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import { isValid } from 'date-fns'
+import { parseISO } from '@/lib/dates'
 import type { Transaction } from '@/types/database.types'
 import type { CashFlowDataPoint } from '@/components/ui/CashFlowChart'
 import type { BarChartDataPoint } from '@/components/ui/BarChart'
@@ -29,8 +31,8 @@ export function useChartData(txList: Transaction[]): UseChartDataResult {
     txList.forEach(tx => {
       if (!tx.transaction_date) return
       
-      const date = new Date(tx.transaction_date)
-      if (isNaN(date.getTime())) return
+      const date = parseISO(tx.transaction_date)
+      if (!isValid(date)) return
       
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
       
